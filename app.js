@@ -1,7 +1,7 @@
 const DEFAULT_PARTICIPANTS = ["小林秀利", "中川隆嗣", "川上明則", "上和野秀夫", "長野英樹", "玉井幸一郎", "山内隆", "古谷正芳", "古賀哲平", "山田浩平", "山口直樹", "山下章則", "鴫原敬幸", "小林隆太", "坂本章彦", "土部　秀則", "小倉豪太郎", "大沼瑞生", "大島花", "赤瀬公平"];
 const DEFAULT_ROUNDS = {"1": [{"table": 1, "players": ["鴫原敬幸", "中川隆嗣", "大島花", "赤瀬公平"]}, {"table": 2, "players": ["山田浩平", "古谷正芳", "小林秀利", "山内隆"]}, {"table": 3, "players": ["長野英樹", "上和野秀夫", "川上明則", "小林隆太"]}, {"table": 4, "players": ["土部　秀則", "古賀哲平", "山口直樹", "山下章則"]}, {"table": 5, "players": ["玉井幸一郎", "坂本章彦", "小倉豪太郎", "大沼瑞生"]}], "2": [{"table": 1, "players": ["坂本章彦", "山口直樹", "赤瀬公平", "小林秀利"]}, {"table": 2, "players": ["大島花", "小林隆太", "山下章則", "古谷正芳"]}, {"table": 3, "players": ["小倉豪太郎", "鴫原敬幸", "土部　秀則", "長野英樹"]}, {"table": 4, "players": ["大沼瑞生", "山田浩平", "古賀哲平", "上和野秀夫"]}, {"table": 5, "players": ["山内隆", "川上明則", "玉井幸一郎", "中川隆嗣"]}], "3": [{"table": 1, "players": ["山下章則", "赤瀬公平", "山田浩平", "小倉豪太郎"]}, {"table": 2, "players": ["古賀哲平", "山内隆", "長野英樹", "坂本章彦"]}, {"table": 3, "players": ["山口直樹", "大島花", "上和野秀夫", "玉井幸一郎"]}, {"table": 4, "players": ["古谷正芳", "大沼瑞生", "鴫原敬幸", "川上明則"]}, {"table": 5, "players": ["小林隆太", "小林秀利", "中川隆嗣", "土部　秀則"]}], "4": [{"table": 1, "players": ["赤瀬公平", "玉井幸一郎", "小林隆太", "古賀哲平"]}, {"table": 2, "players": ["上和野秀夫", "山下章則", "山内隆", "鴫原敬幸"]}, {"table": 3, "players": ["川上明則", "土部　秀則", "坂本章彦", "山田浩平"]}, {"table": 4, "players": ["中川隆嗣", "小倉豪太郎", "古谷正芳", "山口直樹"]}, {"table": 5, "players": ["小林秀利", "長野英樹", "大沼瑞生", "大島花"]}]};
 
-const STORAGE_KEY = "mahjongTournamentPrototype.v4";
+const STORAGE_KEY = "mahjongTournamentPrototype.v6";
 const ADMIN_PASSWORD = "ftomon";
 const ADMIN_SESSION_KEY = "mahjongAdminUnlocked.v1";
 const SEATS = ["東", "南", "西", "北"];
@@ -39,6 +39,10 @@ function freshState() {
     currentRound: 1,
     activeTab: "matchups",
     resultSort: "number",
+    seatPolicy: {
+      5: "east_first",
+      6: "east_first"
+    },
     updatedAt: null
   };
 }
@@ -50,6 +54,9 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return freshState();
     const parsed = JSON.parse(raw);
+    if (!parsed.seatPolicy) parsed.seatPolicy = { 5: "east_first", 6: "east_first" };
+    if (!parsed.seatPolicy[5]) parsed.seatPolicy[5] = "east_first";
+    if (!parsed.seatPolicy[6]) parsed.seatPolicy[6] = "east_first";
     if (parsed.activeTab === "master" && !isAdminUnlocked()) parsed.activeTab = "matchups";
     return parsed;
   } catch (e) {
@@ -155,19 +162,6 @@ function renderMatchups() {
 
   const actions = document.querySelector("#round-actions");
   actions.innerHTML = "";
-  if (r === 5 && hasAnyScoreThrough(4) && state.rounds[5].every(t => t.players.every(p => !p))) {
-    actions.appendChild(makeGenerateButton(5));
-  }
-  if (r === 6 && roundHasAnyScore(5) && state.rounds[6].every(t => t.players.every(p => !p))) {
-    actions.appendChild(makeGenerateButton(6));
-  }
-  if ((r === 5 || r === 6) && state.rounds[r].some(t => t.players.some(Boolean))) {
-    const regen = document.createElement("button");
-    regen.className = "secondary";
-    regen.textContent = `第${r}回戦を順位から再作成`;
-    regen.addEventListener("click", () => generateRankRound(r, true));
-    actions.appendChild(regen);
-  }
 
   const grid = document.querySelector("#table-grid");
   grid.innerHTML = "";
@@ -206,13 +200,6 @@ function renderMatchups() {
   });
 }
 
-function makeGenerateButton(round) {
-  const btn = document.createElement("button");
-  btn.className = "primary";
-  btn.textContent = `第${round}回戦を順位から作成`;
-  btn.addEventListener("click", () => generateRankRound(round, false));
-  return btn;
-}
 
 function aggregateThrough(roundLimit) {
   const map = new Map(state.participants.map(p => [p.id, {
@@ -240,27 +227,57 @@ function rankedThrough(roundLimit) {
   }).map((row, i) => ({...row, rank: i + 1}));
 }
 
-function generateRankRound(round, force) {
+function generateRankRound(round) {
   const sourceRound = round - 1;
   const canGenerate = round === 5 ? hasAnyScoreThrough(4) : roundHasAnyScore(5);
+
   if (!canGenerate) {
     alert(round === 5
       ? "第1～4回戦の得点を1つ以上入力してください。"
       : "第5回戦の得点を1つ以上入力してください。");
     return;
   }
-  if (force && !confirm(`第${round}回戦の組み合わせを現在順位で作り直します。入力済み得点も消去されます。よろしいですか？`)) return;
+
+  const hasScores = roundHasAnyScore(round);
+  if (hasScores) {
+    alert(`第${round}回戦には得点が入力されているため、組み合わせを再反映できません。`);
+    return;
+  }
+
+  const alreadyGenerated = state.rounds[round].some(table => table.players.some(Boolean));
+  if (alreadyGenerated) {
+    const ok = confirm(`第${round}回戦の組み合わせを、現在順位で上書きします。よろしいですか？`);
+    if (!ok) return;
+  }
+
   const ranked = rankedThrough(sourceRound);
+
   for (let t = 0; t < 5; t++) {
     const group = ranked.slice(t * 4, t * 4 + 4);
-    // 上位ほど有利な席へ配置：1位=北、2位=西、3位=南、4位=東。
-    // 画面表示は通常どおり 東・南・西・北 のため、順位順を反転して格納する。
-    const displayOrder = [...group].reverse();
+    const displayOrder = state.seatPolicy[round] === "north_first"
+      ? [...group].reverse()
+      : group;
+
     state.rounds[round][t].players = displayOrder.map(x => x.id);
     state.rounds[round][t].scores = [null, null, null, null];
     state.rounds[round][t].generatedFromRank = displayOrder.map(x => x.rank);
   }
-  state.currentRound = round;
+
+  saveState();
+  render();
+}
+
+function applySeatPolicy(round, policy) {
+  if (round !== 5 && round !== 6) return;
+  if (!state.seatPolicy) state.seatPolicy = { 5: "east_first", 6: "east_first" };
+
+  if (roundHasAnyScore(round)) {
+    alert(`第${round}回戦には得点が入力されているため、席順設定を変更できません。`);
+    render();
+    return;
+  }
+
+  state.seatPolicy[round] = policy;
   saveState();
   render();
 }
@@ -353,15 +370,51 @@ function renderSetupRounds() {
   for (let r = 1; r <= 6; r++) {
     const section = document.createElement("section");
     section.className = "setup-round";
-    section.innerHTML = `<h3>第${r}回戦</h3>`;
+
+    if (r >= 5) {
+      const policy = state.seatPolicy?.[r] || "east_first";
+      const locked = roundHasAnyScore(r);
+      section.innerHTML = `
+        <div class="setup-round-head">
+          <div>
+            <h3>第${r}回戦</h3>
+            <p class="seat-policy-note">
+              ${policy === "north_first"
+                ? "上位順：北 → 西 → 南 → 東"
+                : "上位順：東 → 南 → 西 → 北"}
+            </p>
+          </div>
+          <div class="round-control-group">
+            <label class="seat-policy-switch ${locked ? "is-disabled" : ""}">
+              <input type="checkbox" data-seat-policy-round="${r}"
+                ${policy === "north_first" ? "checked" : ""}
+                ${locked ? "disabled" : ""}>
+              <span>1位を北家にする</span>
+            </label>
+            <button type="button" class="primary reflect-round-button"
+              data-reflect-round="${r}" ${locked ? "disabled" : ""}>
+              組み合わせを反映
+            </button>
+          </div>
+        </div>
+      `;
+      section.querySelector("[data-seat-policy-round]").addEventListener("change", e => {
+        applySeatPolicy(r, e.target.checked ? "north_first" : "east_first");
+      });
+      section.querySelector("[data-reflect-round]").addEventListener("click", () => {
+        generateRankRound(r);
+      });
+    } else {
+      section.innerHTML = `<h3>第${r}回戦</h3>`;
+    }
 
     const hasPlayers = state.rounds[r].some(match => match.players.some(Boolean));
     if (r >= 5 && !hasPlayers) {
       const pending = document.createElement("div");
       pending.className = "round-pending";
       pending.textContent = r === 5
-        ? "第1～4回戦の得点から組み合わせが作成されると、ここに反映されます。"
-        : "第5回戦の得点から組み合わせが作成されると、ここに反映されます。";
+        ? "席順を選び、「組み合わせを反映」を押すと第1～4回戦の現在順位から作成されます。"
+        : "席順を選び、「組み合わせを反映」を押すと第5回戦終了時点の現在順位から作成されます。";
       section.appendChild(pending);
       holder.appendChild(section);
       continue;
@@ -506,6 +559,7 @@ document.querySelector("#import-file").addEventListener("change", async e => {
   try {
     const parsed = JSON.parse(await file.text());
     if (!parsed.participants || !parsed.rounds) throw new Error("形式が違います");
+    if (!parsed.seatPolicy) parsed.seatPolicy = { 5: "east_first", 6: "east_first" };
     state = parsed;
     saveState();
     render();

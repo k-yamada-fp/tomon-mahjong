@@ -14,8 +14,6 @@
     </div>
     <div class="header-actions">
       <span id="save-status">未保存</span>
-      <button id="export-data" class="secondary">バックアップ</button>
-      <label class="file-button secondary">読込<input id="import-file" type="file" accept=".json"></label>
     </div>
   </header>
 
@@ -72,7 +70,11 @@
           <h1>参加者マスタ</h1>
           <p class="muted">ここで氏名を変更すると、組み合わせ画面と結果表の表示名も自動で変わります。</p>
         </div>
-        <button id="reset-data" class="danger">初期状態に戻す</button>
+        <div class="master-actions">
+          <button id="export-data" class="secondary">バックアップ</button>
+          <label class="file-button secondary">読込<input id="import-file" type="file" accept=".json"></label>
+          <button id="reset-data" class="danger">初期状態に戻す</button>
+        </div>
       </div>
 
       <div class="master-layout">

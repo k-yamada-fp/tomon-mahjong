@@ -125,3 +125,67 @@ dialog::backdrop { background:rgba(10,20,18,.52); }
   text-align:left;
   font-weight:700;
 }
+
+
+.master-actions {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:10px;
+}
+.setup-round-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:10px;
+}
+.setup-round-head h3 { margin-bottom:4px; }
+.seat-policy-note {
+  margin:0;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+}
+.seat-policy-switch {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:#fafbfb;
+  color:var(--deep);
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.seat-policy-switch input {
+  width:18px;
+  height:18px;
+  accent-color:#7a1424;
+}
+@media (max-width:700px) {
+  .setup-round-head {
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
+
+
+.round-control-group {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.seat-policy-switch.is-disabled {
+  opacity:.55;
+  cursor:not-allowed;
+}
+.reflect-round-button:disabled {
+  opacity:.45;
+  cursor:not-allowed;
+}
