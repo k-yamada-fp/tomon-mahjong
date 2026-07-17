@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>麻雀大会 集計プロトタイプ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <span class="app-kicker">LOCAL TOURNAMENT TOOL</span>
+      <input id="tournament-name" class="title-input" value="2026年8月1日（土）第6回稲門会麻雀大会" aria-label="大会名">
+    </div>
+    <div class="header-actions">
+      <span id="save-status">未保存</span>
+      <button id="export-data" class="secondary">バックアップ</button>
+      <label class="file-button secondary">読込<input id="import-file" type="file" accept=".json"></label>
+    </div>
+  </header>
+
+  <nav class="main-tabs" aria-label="画面切り替え">
+    <button data-tab="matchups" class="active">組み合わせ・得点入力</button>
+    <button data-tab="results">結果表</button>
+    <button data-tab="master">参加者マスタ・組み合わせ</button>
+  </nav>
+
+  <main>
+    <section id="view-matchups" class="view">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">MATCH TABLE</span>
+          <h1>組み合わせ・得点入力</h1>
+        </div>
+        <div id="round-meta" class="round-meta"></div>
+      </div>
+      <div id="round-tabs" class="round-tabs"></div>
+      <div id="round-actions" class="round-actions"></div>
+      <div id="table-grid" class="table-grid"></div>
+    </section>
+
+    <section id="view-results" class="view" hidden>
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">STANDINGS</span>
+          <h1>結果表</h1>
+          <p id="result-period" class="muted"></p>
+        </div>
+        <div class="segmented">
+          <button data-sort="number" class="active">番号順</button>
+          <button data-sort="rank">順位順</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>順位</th><th>番号</th><th>氏名</th>
+              <th>1回戦</th><th>2回戦</th><th>3回戦</th><th>4回戦</th><th>5回戦</th><th>6回戦</th>
+              <th>4回戦終了</th><th>5回戦終了</th><th>総得点</th>
+            </tr>
+          </thead>
+          <tbody id="result-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="view-master" class="view" hidden>
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">MASTER DATA</span>
+          <h1>参加者マスタ</h1>
+          <p class="muted">ここで氏名を変更すると、組み合わせ画面と結果表の表示名も自動で変わります。</p>
+        </div>
+        <button id="reset-data" class="danger">初期状態に戻す</button>
+      </div>
+
+      <div class="master-layout">
+        <section class="panel participant-panel">
+          <h2>参加者20名</h2>
+          <table class="participant-table">
+            <thead><tr><th>番号</th><th>氏名</th></tr></thead>
+            <tbody id="participant-body"></tbody>
+          </table>
+        </section>
+
+        <section class="panel matchup-panel">
+          <h2>組み合わせ</h2>
+          <div id="setup-rounds"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="score-modal">
+    <form method="dialog" class="modal-card">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">SCORE ENTRY</span>
+          <h2 id="modal-title">得点入力</h2>
+        </div>
+        <button type="button" id="score-cancel" class="icon-button" aria-label="閉じる">×</button>
+      </div>
+      <div id="score-form-body"></div>
+      <div id="modal-total" class="modal-total">合計：—</div>
+      <div class="modal-actions">
+        <button type="button" id="score-cancel-bottom" class="secondary" onclick="document.querySelector('#score-modal').close()">キャンセル</button>
+        <button type="button" id="score-save" class="primary">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
