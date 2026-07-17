@@ -1,7 +1,7 @@
 const DEFAULT_PARTICIPANTS = ["小林秀利", "中川隆嗣", "川上明則", "上和野秀夫", "長野英樹", "玉井幸一郎", "山内隆", "古谷正芳", "古賀哲平", "山田浩平", "山口直樹", "山下章則", "鴫原敬幸", "小林隆太", "坂本章彦", "土部　秀則", "小倉豪太郎", "大沼瑞生", "大島花", "赤瀬公平"];
 const DEFAULT_ROUNDS = {"1": [{"table": 1, "players": ["鴫原敬幸", "中川隆嗣", "大島花", "赤瀬公平"]}, {"table": 2, "players": ["山田浩平", "古谷正芳", "小林秀利", "山内隆"]}, {"table": 3, "players": ["長野英樹", "上和野秀夫", "川上明則", "小林隆太"]}, {"table": 4, "players": ["土部　秀則", "古賀哲平", "山口直樹", "山下章則"]}, {"table": 5, "players": ["玉井幸一郎", "坂本章彦", "小倉豪太郎", "大沼瑞生"]}], "2": [{"table": 1, "players": ["坂本章彦", "山口直樹", "赤瀬公平", "小林秀利"]}, {"table": 2, "players": ["大島花", "小林隆太", "山下章則", "古谷正芳"]}, {"table": 3, "players": ["小倉豪太郎", "鴫原敬幸", "土部　秀則", "長野英樹"]}, {"table": 4, "players": ["大沼瑞生", "山田浩平", "古賀哲平", "上和野秀夫"]}, {"table": 5, "players": ["山内隆", "川上明則", "玉井幸一郎", "中川隆嗣"]}], "3": [{"table": 1, "players": ["山下章則", "赤瀬公平", "山田浩平", "小倉豪太郎"]}, {"table": 2, "players": ["古賀哲平", "山内隆", "長野英樹", "坂本章彦"]}, {"table": 3, "players": ["山口直樹", "大島花", "上和野秀夫", "玉井幸一郎"]}, {"table": 4, "players": ["古谷正芳", "大沼瑞生", "鴫原敬幸", "川上明則"]}, {"table": 5, "players": ["小林隆太", "小林秀利", "中川隆嗣", "土部　秀則"]}], "4": [{"table": 1, "players": ["赤瀬公平", "玉井幸一郎", "小林隆太", "古賀哲平"]}, {"table": 2, "players": ["上和野秀夫", "山下章則", "山内隆", "鴫原敬幸"]}, {"table": 3, "players": ["川上明則", "土部　秀則", "坂本章彦", "山田浩平"]}, {"table": 4, "players": ["中川隆嗣", "小倉豪太郎", "古谷正芳", "山口直樹"]}, {"table": 5, "players": ["小林秀利", "長野英樹", "大沼瑞生", "大島花"]}]};
 
-const STORAGE_KEY = "mahjongTournamentPrototype.v6";
+const STORAGE_KEY = "mahjongTournamentPrototype.v7";
 const ADMIN_PASSWORD = "ftomon";
 const ADMIN_SESSION_KEY = "mahjongAdminUnlocked.v1";
 const SEATS = ["東", "南", "西", "北"];
@@ -337,30 +337,89 @@ function openScoreModal(round, tableIndex) {
   modal.showModal();
 }
 
+let participantDraft = null;
+let participantDraftDirty = false;
+
+function ensureParticipantDraft() {
+  if (!participantDraft) {
+    participantDraft = state.participants.map(p => ({ ...p }));
+    participantDraftDirty = false;
+  }
+}
+
+function discardParticipantDraft() {
+  participantDraft = state.participants.map(p => ({ ...p }));
+  participantDraftDirty = false;
+}
+
 function renderParticipants() {
+  ensureParticipantDraft();
+
   const tbody = document.querySelector("#participant-body");
   tbody.innerHTML = "";
-  state.participants.forEach((p, i) => {
+
+  participantDraft.forEach((p, i) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${p.id}</td>
       <td><input type="text" value="${escapeHtml(p.name)}" data-participant="${i}"></td>
     `;
-    tr.querySelector("input").addEventListener("change", e => {
-      const value = e.target.value.trim();
-      if (!value) {
-        alert("氏名は空欄にできません。");
-        e.target.value = p.name;
-        return;
-      }
-      p.name = value;
-      saveState();
-      render();
+
+    tr.querySelector("input").addEventListener("input", e => {
+      participantDraft[i].name = e.target.value;
+      participantDraftDirty = participantDraft.some((draft, index) =>
+        draft.name !== state.participants[index].name
+      );
+      updateParticipantApplyState();
     });
+
     tbody.appendChild(tr);
   });
 
+  updateParticipantApplyState();
   renderSetupRounds();
+}
+
+function updateParticipantApplyState() {
+  const button = document.querySelector("#apply-participant-changes");
+  const notice = document.querySelector("#participant-change-status");
+  if (!button || !notice) return;
+
+  button.disabled = !participantDraftDirty;
+  notice.textContent = participantDraftDirty
+    ? "未反映の変更があります"
+    : "変更はありません";
+  notice.classList.toggle("has-changes", participantDraftDirty);
+}
+
+function applyParticipantChanges() {
+  ensureParticipantDraft();
+
+  const emptyName = participantDraft.find(p => !p.name.trim());
+  if (emptyName) {
+    alert(`参加者${String(emptyName.id).padStart(2, "0")}の氏名が空欄です。`);
+    return;
+  }
+
+  const duplicateNames = participantDraft
+    .map(p => p.name.trim())
+    .filter((name, index, names) => names.indexOf(name) !== index);
+
+  if (duplicateNames.length) {
+    const ok = confirm(`同じ氏名が含まれています（${[...new Set(duplicateNames)].join("、")}）。このまま反映しますか？`);
+    if (!ok) return;
+  }
+
+  state.participants = participantDraft.map(p => ({
+    id: p.id,
+    name: p.name.trim()
+  }));
+
+  participantDraft = state.participants.map(p => ({ ...p }));
+  participantDraftDirty = false;
+  saveState();
+  render();
+  alert("参加者マスタの修正を反映しました。");
 }
 
 function renderSetupRounds() {
@@ -508,6 +567,13 @@ function escapeHtml(value) {
 
 document.querySelectorAll("[data-tab]").forEach(btn => btn.addEventListener("click", () => {
   const nextTab = btn.dataset.tab;
+
+  if (state.activeTab === "master" && nextTab !== "master" && participantDraftDirty) {
+    const leave = confirm("参加者マスタに未反映の変更があります。破棄して移動しますか？");
+    if (!leave) return;
+    discardParticipantDraft();
+  }
+
   if (nextTab === "master" && !isAdminUnlocked()) {
     const entered = prompt("管理用パスワードを入力してください。");
     if (entered === null) return;
@@ -537,9 +603,12 @@ document.querySelector("#score-cancel").addEventListener("click", () => {
   document.querySelector("#score-modal").close();
 });
 
+document.querySelector("#apply-participant-changes").addEventListener("click", applyParticipantChanges);
+
 document.querySelector("#reset-data").addEventListener("click", () => {
   if (!confirm("参加者名、組み合わせ、得点をすべて初期状態に戻します。よろしいですか？")) return;
   state = freshState();
+  discardParticipantDraft();
   saveState();
   render();
 });
@@ -561,6 +630,7 @@ document.querySelector("#import-file").addEventListener("change", async e => {
     if (!parsed.participants || !parsed.rounds) throw new Error("形式が違います");
     if (!parsed.seatPolicy) parsed.seatPolicy = { 5: "east_first", 6: "east_first" };
     state = parsed;
+    discardParticipantDraft();
     saveState();
     render();
   } catch (err) {
