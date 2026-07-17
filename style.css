@@ -218,3 +218,37 @@ dialog::backdrop { background:rgba(10,20,18,.52); }
   opacity:.45;
   cursor:not-allowed;
 }
+
+
+#connection-status {
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:rgba(255,255,255,.13);
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+}
+#connection-status[data-type="loading"] {
+  background:rgba(255,224,138,.18);
+}
+#connection-status[data-type="success"] {
+  background:rgba(179,255,216,.18);
+}
+#connection-status[data-type="error"] {
+  background:rgba(255,170,170,.2);
+}
+.header-refresh-button {
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:8px;
+  padding:8px 11px;
+  color:#fff;
+  background:rgba(255,255,255,.08);
+  font-size:12px;
+  font-weight:800;
+}
+.header-refresh-button:hover {
+  background:rgba(255,255,255,.16);
+}

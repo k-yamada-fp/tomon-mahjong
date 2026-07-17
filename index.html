@@ -13,7 +13,9 @@
       <input id="tournament-name" class="title-input" value="2026年8月1日（土）第6回稲門会麻雀大会" aria-label="大会名">
     </div>
     <div class="header-actions">
+      <span id="connection-status" data-type="neutral">共有接続を準備中…</span>
       <span id="save-status">未保存</span>
+      <button id="refresh-shared-data" class="header-refresh-button" type="button">共有データ再読込</button>
     </div>
   </header>
 
@@ -118,6 +120,7 @@
     </form>
   </dialog>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
 </body>
 </html>

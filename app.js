@@ -1,7 +1,12 @@
 const DEFAULT_PARTICIPANTS = ["小林秀利", "中川隆嗣", "川上明則", "上和野秀夫", "長野英樹", "玉井幸一郎", "山内隆", "古谷正芳", "古賀哲平", "山田浩平", "山口直樹", "山下章則", "鴫原敬幸", "小林隆太", "坂本章彦", "土部　秀則", "小倉豪太郎", "大沼瑞生", "大島花", "赤瀬公平"];
 const DEFAULT_ROUNDS = {"1": [{"table": 1, "players": ["鴫原敬幸", "中川隆嗣", "大島花", "赤瀬公平"]}, {"table": 2, "players": ["山田浩平", "古谷正芳", "小林秀利", "山内隆"]}, {"table": 3, "players": ["長野英樹", "上和野秀夫", "川上明則", "小林隆太"]}, {"table": 4, "players": ["土部　秀則", "古賀哲平", "山口直樹", "山下章則"]}, {"table": 5, "players": ["玉井幸一郎", "坂本章彦", "小倉豪太郎", "大沼瑞生"]}], "2": [{"table": 1, "players": ["坂本章彦", "山口直樹", "赤瀬公平", "小林秀利"]}, {"table": 2, "players": ["大島花", "小林隆太", "山下章則", "古谷正芳"]}, {"table": 3, "players": ["小倉豪太郎", "鴫原敬幸", "土部　秀則", "長野英樹"]}, {"table": 4, "players": ["大沼瑞生", "山田浩平", "古賀哲平", "上和野秀夫"]}, {"table": 5, "players": ["山内隆", "川上明則", "玉井幸一郎", "中川隆嗣"]}], "3": [{"table": 1, "players": ["山下章則", "赤瀬公平", "山田浩平", "小倉豪太郎"]}, {"table": 2, "players": ["古賀哲平", "山内隆", "長野英樹", "坂本章彦"]}, {"table": 3, "players": ["山口直樹", "大島花", "上和野秀夫", "玉井幸一郎"]}, {"table": 4, "players": ["古谷正芳", "大沼瑞生", "鴫原敬幸", "川上明則"]}, {"table": 5, "players": ["小林隆太", "小林秀利", "中川隆嗣", "土部　秀則"]}], "4": [{"table": 1, "players": ["赤瀬公平", "玉井幸一郎", "小林隆太", "古賀哲平"]}, {"table": 2, "players": ["上和野秀夫", "山下章則", "山内隆", "鴫原敬幸"]}, {"table": 3, "players": ["川上明則", "土部　秀則", "坂本章彦", "山田浩平"]}, {"table": 4, "players": ["中川隆嗣", "小倉豪太郎", "古谷正芳", "山口直樹"]}, {"table": 5, "players": ["小林秀利", "長野英樹", "大沼瑞生", "大島花"]}]};
 
-const STORAGE_KEY = "mahjongTournamentPrototype.v7";
+const STORAGE_KEY = "mahjongTournamentPrototype.v8";
+const SUPABASE_URL = "https://nxctkqhbwzctwesugyzr.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_wOcvu_fogdwTIJnzaoqMkA_lPtmpxnJ";
+const TOURNAMENT_ID = "tomon-mahjong-2026-08-01";
+const SUPABASE_TABLE = "tournament_states";
+
 const ADMIN_PASSWORD = "ftomon";
 const ADMIN_SESSION_KEY = "mahjongAdminUnlocked.v1";
 const SEATS = ["東", "南", "西", "北"];
@@ -48,6 +53,11 @@ function freshState() {
 }
 
 let state = loadState();
+let supabaseClient = null;
+let remoteSaveTimer = null;
+let isApplyingRemoteState = false;
+let lastRemoteUpdatedAt = null;
+
 
 function loadState() {
   try {
@@ -65,10 +75,172 @@ function loadState() {
   }
 }
 
+function setConnectionStatus(message, type = "neutral") {
+  const el = document.querySelector("#connection-status");
+  if (!el) return;
+  el.textContent = message;
+  el.dataset.type = type;
+}
+
+function buildSharedState() {
+  return {
+    tournamentName: state.tournamentName,
+    participants: state.participants,
+    rounds: state.rounds,
+    seatPolicy: state.seatPolicy,
+    updatedAt: state.updatedAt
+  };
+}
+
+function mergeSharedState(shared) {
+  if (!shared || typeof shared !== "object") return;
+
+  if (typeof shared.tournamentName === "string") state.tournamentName = shared.tournamentName;
+  if (Array.isArray(shared.participants)) state.participants = shared.participants;
+  if (shared.rounds && typeof shared.rounds === "object") state.rounds = shared.rounds;
+  if (shared.seatPolicy && typeof shared.seatPolicy === "object") state.seatPolicy = shared.seatPolicy;
+  if (shared.updatedAt) state.updatedAt = shared.updatedAt;
+
+  participantDraft = null;
+  participantDraftDirty = false;
+}
+
+async function initializeSupabase() {
+  try {
+    if (!window.supabase?.createClient) {
+      throw new Error("Supabaseライブラリを読み込めませんでした。");
+    }
+
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    setConnectionStatus("共有データを読込中…", "loading");
+    await loadRemoteState();
+  } catch (error) {
+    console.error(error);
+    setConnectionStatus("共有接続に失敗・この端末内で保存", "error");
+    render();
+  }
+}
+
+async function loadRemoteState() {
+  const { data, error } = await supabaseClient
+    .from(SUPABASE_TABLE)
+    .select("data, updated_at")
+    .eq("tournament_id", TOURNAMENT_ID)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  if (!data) {
+    await saveRemoteState(true);
+    setConnectionStatus("共有保存を開始しました", "success");
+    render();
+    return;
+  }
+
+  isApplyingRemoteState = true;
+  mergeSharedState(data.data);
+  lastRemoteUpdatedAt = data.updated_at || null;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  isApplyingRemoteState = false;
+
+  setConnectionStatus("共有データを読込済み", "success");
+  render();
+}
+
+function scheduleRemoteSave() {
+  if (!supabaseClient || isApplyingRemoteState) return;
+
+  clearTimeout(remoteSaveTimer);
+  setConnectionStatus("共有保存中…", "loading");
+
+  remoteSaveTimer = setTimeout(() => {
+    saveRemoteState(false).catch(error => {
+      console.error(error);
+      setConnectionStatus("共有保存に失敗・端末内には保存済み", "error");
+    });
+  }, 250);
+}
+
+async function saveRemoteState(isInitial = false) {
+  if (!supabaseClient) return;
+
+  const payload = buildSharedState();
+  const { data, error } = await supabaseClient
+    .from(SUPABASE_TABLE)
+    .upsert({
+      tournament_id: TOURNAMENT_ID,
+      data: payload,
+      updated_at: new Date().toISOString()
+    }, {
+      onConflict: "tournament_id"
+    })
+    .select("updated_at")
+    .single();
+
+  if (error) throw error;
+
+  lastRemoteUpdatedAt = data?.updated_at || null;
+  setConnectionStatus(
+    isInitial ? "共有保存を開始しました" : "共有保存済み",
+    "success"
+  );
+}
+
+async function refreshFromSharedData() {
+  if (!supabaseClient) {
+    alert("共有データへ接続できていません。");
+    return;
+  }
+
+  const ok = confirm("共有データを再読み込みします。この端末で未共有の変更がある場合は上書きされます。よろしいですか？");
+  if (!ok) return;
+
+  try {
+    setConnectionStatus("共有データを再読込中…", "loading");
+    await loadRemoteState();
+  } catch (error) {
+    console.error(error);
+    setConnectionStatus("共有データの再読込に失敗", "error");
+    alert("共有データを再読み込みできませんでした。");
+  }
+}
+
+function startSharedPolling() {
+  setInterval(async () => {
+    if (!supabaseClient || document.hidden || participantDraftDirty) return;
+
+    try {
+      const { data, error } = await supabaseClient
+        .from(SUPABASE_TABLE)
+        .select("data, updated_at")
+        .eq("tournament_id", TOURNAMENT_ID)
+        .maybeSingle();
+
+      if (error || !data) return;
+      if (!lastRemoteUpdatedAt || data.updated_at > lastRemoteUpdatedAt) {
+        isApplyingRemoteState = true;
+        mergeSharedState(data.data);
+        lastRemoteUpdatedAt = data.updated_at;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        isApplyingRemoteState = false;
+        setConnectionStatus("最新データへ更新しました", "success");
+        render();
+      }
+    } catch (error) {
+      console.warn("共有データの自動確認に失敗しました。", error);
+    }
+  }, 5000);
+}
+
 function saveState() {
   state.updatedAt = new Date().toISOString();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   updateSaveStatus();
+  scheduleRemoteSave();
 }
 
 function participantById(id) {
@@ -87,7 +259,7 @@ function updateSaveStatus() {
     return;
   }
   const d = new Date(state.updatedAt);
-  el.textContent = `保存済み ${d.toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"})}`;
+  el.textContent = `端末内保存 ${d.toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"})}`;
 }
 
 function render() {
@@ -605,6 +777,8 @@ document.querySelector("#score-cancel").addEventListener("click", () => {
 
 document.querySelector("#apply-participant-changes").addEventListener("click", applyParticipantChanges);
 
+document.querySelector("#refresh-shared-data").addEventListener("click", refreshFromSharedData);
+
 document.querySelector("#reset-data").addEventListener("click", () => {
   if (!confirm("参加者名、組み合わせ、得点をすべて初期状態に戻します。よろしいですか？")) return;
   state = freshState();
@@ -641,3 +815,5 @@ document.querySelector("#import-file").addEventListener("change", async e => {
 });
 
 render();
+initializeSupabase();
+startSharedPolling();
