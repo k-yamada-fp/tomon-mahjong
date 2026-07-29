@@ -263,8 +263,18 @@ function updateSaveStatus() {
 }
 
 function render() {
-  document.querySelector("#tournament-name").value = state.tournamentName;
-  document.querySelectorAll("[data-tab]").forEach(btn => {
+  document.querySelector("#home-title").addEventListener("click", () => {
+  if (state.activeTab === "master" && participantDraftDirty) {
+    const leave = confirm("参加者マスタに未反映の変更があります。破棄してトップへ戻りますか？");
+    if (!leave) return;
+    discardParticipantDraft();
+  }
+  state.activeTab = "matchups";
+  saveState();
+  render();
+});
+
+document.querySelectorAll("[data-tab]").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.tab === state.activeTab);
   });
   document.querySelectorAll(".view").forEach(v => v.hidden = true);
@@ -765,11 +775,6 @@ document.querySelectorAll("[data-sort]").forEach(btn => btn.addEventListener("cl
   saveState();
   render();
 }));
-
-document.querySelector("#tournament-name").addEventListener("change", e => {
-  state.tournamentName = e.target.value.trim() || "2026年8月1日（土）第6回稲門会麻雀大会";
-  saveState();
-});
 
 document.querySelector("#score-cancel").addEventListener("click", () => {
   document.querySelector("#score-modal").close();

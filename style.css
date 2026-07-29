@@ -330,3 +330,40 @@ dialog::backdrop { background:rgba(10,20,18,.52); }
     max-height:none;
   }
 }
+
+
+.title-home-button {
+  display:block;
+  margin-top:4px;
+  border:0;
+  padding:0;
+  color:#fff;
+  background:transparent;
+  font:inherit;
+  font-size:28px;
+  font-weight:800;
+  text-align:left;
+  cursor:pointer;
+}
+.title-home-button:hover {
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:5px;
+}
+.title-home-button:focus-visible {
+  outline:2px solid rgba(255,255,255,.9);
+  outline-offset:5px;
+  border-radius:3px;
+}
+.rules-page {
+  max-width:1100px;
+  margin:0 auto;
+}
+.rules-panel-standalone {
+  width:100%;
+  max-height:none;
+  overflow:visible;
+}
+#view-results .table-scroll {
+  width:100%;
+}

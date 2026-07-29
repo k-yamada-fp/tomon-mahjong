@@ -10,7 +10,7 @@
   <header class="app-header">
     <div>
       <span class="app-kicker">LOCAL TOURNAMENT TOOL</span>
-      <input id="tournament-name" class="title-input" value="2026年8月1日（土）第6回稲門会麻雀大会" aria-label="大会名">
+      <button id="home-title" class="title-home-button" type="button" aria-label="組み合わせ・得点入力へ戻る">2026年8月1日（土）第6回稲門会麻雀大会</button>
     </div>
     <div class="header-actions">
       <span id="connection-status" data-type="neutral">共有接続を準備中…</span>
@@ -22,7 +22,8 @@
   <nav class="main-tabs" aria-label="画面切り替え">
     <button data-tab="matchups" class="active">組み合わせ・得点入力</button>
     <button data-tab="results">結果表</button>
-    <button data-tab="master">参加者マスタ・組み合わせ</button>
+    <button data-tab="rules">競技規則</button>
+    <button data-tab="master">参加者マスタ（管理用）</button>
   </nav>
 
   <main>
@@ -51,7 +52,6 @@
           <button data-sort="rank">順位順</button>
         </div>
       </div>
-      <div class="results-layout">
         <div class="table-scroll results-table-area">
           <table class="result-table">
             <thead>
@@ -65,7 +65,19 @@
           </table>
         </div>
 
-        <aside class="rules-panel" aria-labelledby="rules-title">
+      </div>
+    </section>
+
+
+    <section id="view-rules" class="view" hidden>
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">TOURNAMENT RULES</span>
+          <h1>競技規則</h1>
+        </div>
+      </div>
+      <div class="rules-page">
+<aside class="rules-panel rules-panel-standalone" aria-labelledby="rules-title">
           <div class="rules-panel-head">
             <span class="eyebrow">TOURNAMENT RULES</span>
             <h2 id="rules-title">競技規則</h2>
@@ -153,7 +165,7 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">MASTER DATA</span>
-          <h1>参加者マスタ</h1>
+          <h1>参加者マスタ（管理用）</h1>
           <p class="muted">ここで氏名を変更すると、組み合わせ画面と結果表の表示名も自動で変わります。</p>
         </div>
         <div class="master-actions">
