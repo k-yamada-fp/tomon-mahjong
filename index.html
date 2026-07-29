@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>麻雀大会 集計プロトタイプ</title>
+  <title>第6回稲門会麻雀大会</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -51,17 +51,101 @@
           <button data-sort="rank">順位順</button>
         </div>
       </div>
-      <div class="table-scroll">
-        <table class="result-table">
-          <thead>
-            <tr>
-              <th>順位</th><th>番号</th><th>氏名</th>
-              <th>1回戦</th><th>2回戦</th><th>3回戦</th><th>4回戦</th><th>5回戦</th><th>6回戦</th>
-              <th>4回戦終了</th><th>5回戦終了</th><th>総得点</th>
-            </tr>
-          </thead>
-          <tbody id="result-body"></tbody>
-        </table>
+      <div class="results-layout">
+        <div class="table-scroll results-table-area">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>順位</th><th>番号</th><th>氏名</th>
+                <th>1回戦</th><th>2回戦</th><th>3回戦</th><th>4回戦</th><th>5回戦</th><th>6回戦</th>
+                <th>4回戦終了</th><th>5回戦終了</th><th>総得点</th>
+              </tr>
+            </thead>
+            <tbody id="result-body"></tbody>
+          </table>
+        </div>
+
+        <aside class="rules-panel" aria-labelledby="rules-title">
+          <div class="rules-panel-head">
+            <span class="eyebrow">TOURNAMENT RULES</span>
+            <h2 id="rules-title">競技規則</h2>
+            <p>2026年4月4日版</p>
+          </div>
+
+          <div class="rules-content">
+            <section class="rule-section">
+              <h3>試合形式</h3>
+              <ol start="1">
+                <li>東南回し半荘を6回行い、ウマオカ含めた点数の合計で順位を決定する。5回目は1～4回目迄の結果に従い卓割り及び席順を決定し、6回目も5回目の結果に従い卓割り及び席順を決定する。</li>
+                <li>半荘1回毎に、予め定めた卓割により対戦相手の組換えを行なう。</li>
+                <li>着席は予めひいた卓割により決定し、起家は予め決定した席に固定する。</li>
+              </ol>
+            </section>
+
+            <section class="rule-section">
+              <h3>時間・進行ルール</h3>
+              <ol start="4">
+                <li>制限時間は50分。東南半荘が50分以内で終わったらその卓は終了する。タイムキーパーは45分経過時点で終了5分前コールを行い、50分経過コールがされた局を最終局とする。トビナシ箱下続行、持ち点が0点を下回っても黒棒等を用いて半荘継続。持ち点0点以下でも立直可能とする。</li>
+              </ol>
+            </section>
+
+            <section class="rule-section">
+              <h3>基本ルール</h3>
+              <ol start="5">
+                <li>ルールは「アリアリ」。食いタン、役の後付け等でも上がれる。</li>
+                <li>チップ、ヤキトリ、トビ賞は無しとする。2ハン縛り、西入り等も無しとする。</li>
+                <li>25,000点持ちの30,000点返し、ウマオカ有りのワンスリーとする。ノーテン罰符は場に3,000点とする。ノーテンは親流れ、オーラス時に親がノーテンであればその半荘は終了する。形式聴牌あり、オーラス親のアガリ止めあり、オーラス親の聴牌止めはなしとする。</li>
+                <li>途中流局無しとする。九種九牌、四風連打、四人立直、四開槓などが成立しても途中流局はしない。</li>
+                <li>同点の場合は、素点勝ち点共に上家取りとする。なお上家とは起家を基準とする。</li>
+              </ol>
+            </section>
+
+            <section class="rule-section">
+              <h3>立直・ドラ関連</h3>
+              <ol start="10">
+                <li>リーチ棒1,000点とする。1発有り、フリテンリーチ有り、リーチ後の見逃しは有りとするが、フリテンとなる。リーチ裏ドラ、カンドラ、カン裏ドラ有り、赤ドラ有り（5萬、5筒、5索各1枚）とする。</li>
+              </ol>
+            </section>
+
+            <section class="rule-section">
+              <h3>特殊ルール・ロン・カン</h3>
+              <ol start="11">
+                <li>ダブロン及びトリプルロン有りとし、シバ棒及び供託棒は上家取りとする。アタマハネによって親番の流局も発生する。途中流局が無い為、トリプルロンも有りとする。</li>
+                <li>カンした場合は14枚残し、カンドラは、暗カン明カン共に即めくりとする。</li>
+                <li>流し満貫はアガリ扱いで流局時成立する。</li>
+                <li>四槓子は1人が4回の槓を成立させた時点（4つ目の槓における嶺上を自模りその打牌を終え、それに他家からのロンが掛からなかった時点）で成立する。</li>
+                <li>役牌頭は2符、ダブル役牌頭も2符、副露してもツモ符2符はつく。</li>
+              </ol>
+            </section>
+
+            <section class="rule-section">
+              <h3>役満・特殊役</h3>
+              <ol start="16">
+                <li>ダブル役満無し、役満役の複合もシングル役満とする。オープン立直、マネマン、三連刻、大車輪、十三不塔、人和など、いわゆるローカル役は無しとする。</li>
+              </ol>
+            </section>
+
+            <section class="rule-section">
+              <h3>役満祝儀</h3>
+              <ol start="17">
+                <li>役満祝儀は、アガリ者が大会参加者全員から各々500円を徴収できるものとする。</li>
+              </ol>
+            </section>
+
+            <section class="rule-section">
+              <h3>チョンボ・罰則</h3>
+              <ol start="18">
+                <li>チョンボは3,000点オールを支払うものとし、子のチョンボはその局やり直し、親のチョンボは親番流れとする。フリテン、ノーテンリーチ、役無しアガリなどをチョンボとする。</li>
+              </ol>
+              <ul>
+                <li>誤ロン誤ツモは倒牌したらチョンボ、倒牌前なら上がり放棄とする。</li>
+                <li>誤ポン誤チー誤カン（発声のみで牌をさらしていない）は場に1,000点供託とする。</li>
+                <li>錯ポン錯チー錯カン（発声し牌をさらしたが牌姿が適当ではない）は上がり放棄とする。</li>
+                <li>少牌（1巡目に発覚時限定で2巡目に2枚自摸の救済措置有り）、多牌、食い替えは上がり放棄とする。</li>
+              </ul>
+            </section>
+          </div>
+        </aside>
       </div>
     </section>
 
