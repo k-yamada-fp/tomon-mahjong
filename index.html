@@ -21,7 +21,7 @@
 
   <nav class="main-tabs" aria-label="画面切り替え">
     <button data-tab="matchups" class="active">組み合わせ・得点入力</button>
-    <button data-tab="results">結果表</button>
+    <button data-tab="results">経過・結果表</button>
     <button data-tab="rules">競技規則</button>
     <button data-tab="master">参加者マスタ（管理用）</button>
   </nav>
@@ -44,12 +44,12 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">STANDINGS</span>
-          <h1>結果表</h1>
+          <h1>経過・結果表</h1>
           <p id="result-period" class="muted"></p>
         </div>
         <div class="segmented">
-          <button data-sort="number" class="active">番号順</button>
-          <button data-sort="rank">順位順</button>
+          <button data-sort="number">番号順</button>
+          <button data-sort="rank" class="active">順位順</button>
         </div>
       </div>
         <div class="table-scroll results-table-area">
@@ -78,13 +78,7 @@
       </div>
       <div class="rules-page">
 <aside class="rules-panel rules-panel-standalone" aria-labelledby="rules-title">
-          <div class="rules-panel-head">
-            <span class="eyebrow">TOURNAMENT RULES</span>
-            <h2 id="rules-title">競技規則</h2>
-            <p>2026年4月4日版</p>
-          </div>
-
-          <div class="rules-content">
+<div class="rules-content">
             <section class="rule-section">
               <h3>試合形式</h3>
               <ol start="1">
@@ -208,7 +202,10 @@
         <button type="button" id="score-cancel" class="icon-button" aria-label="閉じる">×</button>
       </div>
       <div id="score-form-body"></div>
-      <div id="modal-total" class="modal-total">合計：—</div>
+      <div class="modal-summary-row">
+        <button type="button" id="score-clear" class="score-clear-button">クリア</button>
+        <div id="modal-total" class="modal-total">合計：—</div>
+      </div>
       <div class="modal-actions">
         <button type="button" id="score-cancel-bottom" class="secondary" onclick="document.querySelector('#score-modal').close()">キャンセル</button>
         <button type="button" id="score-save" class="primary">保存</button>

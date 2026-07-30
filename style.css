@@ -367,3 +367,83 @@ dialog::backdrop { background:rgba(10,20,18,.52); }
 #view-results .table-scroll {
   width:100%;
 }
+
+
+/* v11: 競技規則は独立ページで自然に縦へ伸ばす */
+.rules-page {
+  max-width: 980px;
+}
+.rules-panel-standalone {
+  max-height: none !important;
+  overflow: visible !important;
+  border-radius: 12px;
+}
+.rules-panel-standalone .rules-content {
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 24px 28px 34px;
+}
+.rules-panel-standalone .rule-section {
+  margin-bottom: 28px;
+}
+.rules-panel-standalone .rule-section h3 {
+  margin-bottom: 12px;
+  font-size: 20px;
+  line-height: 1.5;
+}
+.rules-panel-standalone .rule-section li {
+  margin-bottom: 10px;
+  font-size: 16px;
+  line-height: 1.9;
+}
+.rules-panel-standalone .rule-section ul,
+.rules-panel-standalone .rule-section ol {
+  padding-left: 1.7em;
+}
+
+.modal-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.modal-summary-row .modal-total {
+  flex: 1;
+  margin-top: 0;
+}
+.score-clear-button {
+  border: 0;
+  padding: 6px 8px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.score-clear-button:hover {
+  color: var(--negative);
+}
+
+@media (max-width: 700px) {
+  .rules-page {
+    max-width: none;
+  }
+  .rules-panel-standalone {
+    border-radius: 10px;
+  }
+  .rules-panel-standalone .rules-content {
+    padding: 20px 18px 30px;
+  }
+  .rules-panel-standalone .rule-section {
+    margin-bottom: 30px;
+  }
+  .rules-panel-standalone .rule-section h3 {
+    font-size: 21px;
+  }
+  .rules-panel-standalone .rule-section li {
+    margin-bottom: 13px;
+    font-size: 18px;
+    line-height: 1.9;
+  }
+}
