@@ -447,3 +447,24 @@ dialog::backdrop { background:rgba(10,20,18,.52); }
     line-height: 1.9;
   }
 }
+
+
+.app-footer {
+  display:flex;
+  justify-content:center;
+  padding:28px 16px 34px;
+}
+.admin-footer-link {
+  border:0;
+  padding:6px 8px;
+  color:#98a0a8;
+  background:transparent;
+  font-size:11px;
+  font-weight:600;
+  cursor:pointer;
+}
+.admin-footer-link:hover {
+  color:#5f6871;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}

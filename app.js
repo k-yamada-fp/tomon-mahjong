@@ -1,7 +1,7 @@
 const DEFAULT_PARTICIPANTS = ["小林秀利", "中川隆嗣", "川上明則", "上和野秀夫", "長野英樹", "玉井幸一郎", "山内隆", "古谷正芳", "古賀哲平", "山田浩平", "山口直樹", "山下章則", "鴫原敬幸", "小林隆太", "坂本章彦", "土部　秀則", "小倉豪太郎", "大沼瑞生", "大島花", "赤瀬公平"];
 const DEFAULT_ROUNDS = {"1": [{"table": 1, "players": ["鴫原敬幸", "中川隆嗣", "大島花", "赤瀬公平"]}, {"table": 2, "players": ["山田浩平", "古谷正芳", "小林秀利", "山内隆"]}, {"table": 3, "players": ["長野英樹", "上和野秀夫", "川上明則", "小林隆太"]}, {"table": 4, "players": ["土部　秀則", "古賀哲平", "山口直樹", "山下章則"]}, {"table": 5, "players": ["玉井幸一郎", "坂本章彦", "小倉豪太郎", "大沼瑞生"]}], "2": [{"table": 1, "players": ["坂本章彦", "山口直樹", "赤瀬公平", "小林秀利"]}, {"table": 2, "players": ["大島花", "小林隆太", "山下章則", "古谷正芳"]}, {"table": 3, "players": ["小倉豪太郎", "鴫原敬幸", "土部　秀則", "長野英樹"]}, {"table": 4, "players": ["大沼瑞生", "山田浩平", "古賀哲平", "上和野秀夫"]}, {"table": 5, "players": ["山内隆", "川上明則", "玉井幸一郎", "中川隆嗣"]}], "3": [{"table": 1, "players": ["山下章則", "赤瀬公平", "山田浩平", "小倉豪太郎"]}, {"table": 2, "players": ["古賀哲平", "山内隆", "長野英樹", "坂本章彦"]}, {"table": 3, "players": ["山口直樹", "大島花", "上和野秀夫", "玉井幸一郎"]}, {"table": 4, "players": ["古谷正芳", "大沼瑞生", "鴫原敬幸", "川上明則"]}, {"table": 5, "players": ["小林隆太", "小林秀利", "中川隆嗣", "土部　秀則"]}], "4": [{"table": 1, "players": ["赤瀬公平", "玉井幸一郎", "小林隆太", "古賀哲平"]}, {"table": 2, "players": ["上和野秀夫", "山下章則", "山内隆", "鴫原敬幸"]}, {"table": 3, "players": ["川上明則", "土部　秀則", "坂本章彦", "山田浩平"]}, {"table": 4, "players": ["中川隆嗣", "小倉豪太郎", "古谷正芳", "山口直樹"]}, {"table": 5, "players": ["小林秀利", "長野英樹", "大沼瑞生", "大島花"]}]};
 
-const STORAGE_KEY = "mahjongTournamentPrototype.v11";
+const STORAGE_KEY = "mahjongTournamentPrototype.v12";
 const SUPABASE_URL = "https://nxctkqhbwzctwesugyzr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_wOcvu_fogdwTIJnzaoqMkA_lPtmpxnJ";
 const TOURNAMENT_ID = "tomon-mahjong-2026-08-01";
@@ -511,10 +511,22 @@ function openScoreModal(round, tableIndex) {
     const values = [...body.querySelectorAll("input")].map(input =>
       input.value.trim() === "" ? null : Number(input.value)
     );
-    if (values.some(v => v === null || !Number.isFinite(v))) {
-      alert("4人分の得点を入力してください。");
+    const allEmpty = values.every(v => v === null);
+    const partiallyEmpty = values.some(v => v === null);
+
+    if (allEmpty) {
+      table.scores = [null, null, null, null];
+      saveState();
+      modal.close();
+      render();
       return;
     }
+
+    if (partiallyEmpty || values.some(v => !Number.isFinite(v))) {
+      alert("4人分を入力するか、すべて空欄にしてください。");
+      return;
+    }
+
     const total = values.reduce((a,b) => a+b, 0);
     if (Math.abs(total) > 0.05) {
       const ok = confirm(`4人の合計が ${formatScore(total)} です。このまま保存しますか？`);
