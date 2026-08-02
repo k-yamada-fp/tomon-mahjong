@@ -22,37 +22,10 @@ function isAdminUnlocked() {
 
 
 function freshState() {
-  const participants = DEFAULT_PARTICIPANTS.map((name, i) => ({ id: i + 1, name }));
-  const nameToId = Object.fromEntries(participants.map(p => [p.name, p.id]));
-  const rounds = {};
-  for (let r = 1; r <= 6; r++) {
-    rounds[r] = [];
-    for (let t = 1; t <= 5; t++) {
-      const source = DEFAULT_ROUNDS[String(r)]?.[t - 1]?.players || [];
-      rounds[r].push({
-        table: t,
-        players: source.map(name => nameToId[name] || null),
-        scores: [null, null, null, null],
-        generatedFromRank: null
-      });
-    }
-  }
-  return {
-    tournamentName: "2026年8月1日（土）第6回稲門会麻雀大会",
-    participants,
-    rounds,
-    currentRound: 1,
-    activeTab: "matchups",
-    resultSort: "rank",
-    seatPolicy: {
-      5: "east_first",
-      6: "east_first"
-    },
-    updatedAt: null
-  };
+  return {"tournamentName":"2026年8月1日（土）第6回稲門会麻雀大会","participants":[{"id":1,"name":"小林秀利"},{"id":2,"name":"中川隆嗣"},{"id":3,"name":"川上明則"},{"id":4,"name":"上和野秀夫"},{"id":5,"name":"長野英樹"},{"id":6,"name":"玉井幸一郎"},{"id":7,"name":"山内隆"},{"id":8,"name":"古谷正芳"},{"id":9,"name":"古賀哲平"},{"id":10,"name":"山田浩平"},{"id":11,"name":"山口直樹"},{"id":12,"name":"山下章則"},{"id":13,"name":"鴫原敬幸"},{"id":14,"name":"小林隆太"},{"id":15,"name":"坂本章彦"},{"id":16,"name":"土部　秀則"},{"id":17,"name":"小倉豪太郎"},{"id":18,"name":"大沼瑞生"},{"id":19,"name":"大島花"},{"id":20,"name":"赤瀬公平"}],"rounds":{"1":[{"table":1,"players":[13,2,19,20],"scores":[2.6,79.6,-53.7,-28.5],"generatedFromRank":null},{"table":2,"players":[10,8,1,7],"scores":[-55.3,-32.8,75.0,13.1],"generatedFromRank":null},{"table":3,"players":[5,4,3,14],"scores":[-26.6,-51.1,16.9,60.8],"generatedFromRank":null},{"table":4,"players":[16,9,11,12],"scores":[-25.9,65.4,-52.7,13.2],"generatedFromRank":null},{"table":5,"players":[6,15,17,18],"scores":[5.7,-42.6,-17.4,54.3],"generatedFromRank":null}],"2":[{"table":1,"players":[15,11,20,1],"scores":[-27.2,-48.1,60.6,14.7],"generatedFromRank":null},{"table":2,"players":[19,14,12,8],"scores":[-41.6,4.6,-21.1,58.1],"generatedFromRank":null},{"table":3,"players":[17,13,16,5],"scores":[-16.1,5.7,-47.3,57.7],"generatedFromRank":null},{"table":4,"players":[18,10,9,4],"scores":[68.2,14.8,-60.6,-22.4],"generatedFromRank":null},{"table":5,"players":[7,3,6,2],"scores":[-27.8,97.1,-71.2,1.9],"generatedFromRank":null}],"3":[{"table":1,"players":[12,20,10,17],"scores":[60.3,19.9,-18.6,-61.6],"generatedFromRank":null},{"table":2,"players":[9,7,5,15],"scores":[-41.6,55.5,6.3,-20.2],"generatedFromRank":null},{"table":3,"players":[11,19,4,6],"scores":[-46.0,58.2,6.4,-18.6],"generatedFromRank":null},{"table":4,"players":[8,18,13,3],"scores":[62.1,-52.9,21.9,-31.1],"generatedFromRank":null},{"table":5,"players":[14,1,2,16],"scores":[-17.0,75.2,17.5,-75.7],"generatedFromRank":null}],"4":[{"table":1,"players":[20,6,14,9],"scores":[7.2,-46.9,-18.3,58.0],"generatedFromRank":null},{"table":2,"players":[4,12,7,13],"scores":[-18.7,54.5,12.5,-48.3],"generatedFromRank":null},{"table":3,"players":[3,16,15,10],"scores":[5.4,58.2,-17.7,-45.9],"generatedFromRank":null},{"table":4,"players":[2,17,8,11],"scores":[3.3,70.0,-19.2,-54.1],"generatedFromRank":null},{"table":5,"players":[1,5,18,19],"scores":[10.5,-21.6,-78.8,89.9],"generatedFromRank":null}],"5":[{"table":1,"players":[1,12,2,3],"scores":[-53.2,65.7,-25.1,12.6],"generatedFromRank":4},{"table":2,"players":[8,20,7,19],"scores":[59.3,8.9,-51.6,-16.6],"generatedFromRank":4},{"table":3,"players":[14,9,5,18],"scores":[-12.7,57.1,-56.3,11.9],"generatedFromRank":4},{"table":4,"players":[13,17,4,16],"scores":[64.9,-11.5,16.4,-69.8],"generatedFromRank":4},{"table":5,"players":[10,15,6,11],"scores":[-19.6,11.4,60.3,-52.1],"generatedFromRank":4}],"6":[{"table":1,"players":[12,8,1,3],"scores":[-45.7,-23.6,66.1,3.2],"generatedFromRank":5},{"table":2,"players":[9,2,20,13],"scores":[-57.2,7.0,80.6,-30.4],"generatedFromRank":5},{"table":3,"players":[19,14,18,7],"scores":[-55.0,66.4,5.3,-16.7],"generatedFromRank":5},{"table":4,"players":[17,5,4,6],"scores":[50.6,9.1,-15.1,-44.6],"generatedFromRank":5},{"table":5,"players":[15,10,16,11],"scores":[-40.4,7.8,-19.0,51.6],"generatedFromRank":5}]},"currentRound":6,"activeTab":"results","resultSort":"rank","seatPolicy":{"5":"east_first","6":"east_first"},"updatedAt":"2026-08-02T22:11:00+09:00"};
 }
 
-let state = loadState();
+let state = freshState();
 let supabaseClient = null;
 let remoteSaveTimer = null;
 let isApplyingRemoteState = false;
@@ -60,19 +33,7 @@ let lastRemoteUpdatedAt = null;
 
 
 function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return freshState();
-    const parsed = JSON.parse(raw);
-    if (!parsed.seatPolicy) parsed.seatPolicy = { 5: "east_first", 6: "east_first" };
-    if (!parsed.seatPolicy[5]) parsed.seatPolicy[5] = "east_first";
-    if (!parsed.seatPolicy[6]) parsed.seatPolicy[6] = "east_first";
-    if (parsed.activeTab === "master" && !isAdminUnlocked()) parsed.activeTab = "matchups";
-    return parsed;
-  } catch (e) {
-    console.warn("保存データを読み込めませんでした。", e);
-    return freshState();
-  }
+  return freshState();
 }
 
 function setConnectionStatus(message, type = "neutral") {
@@ -237,10 +198,12 @@ function startSharedPolling() {
 }
 
 function saveState() {
-  state.updatedAt = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem("mahjongFinalView.ui.v1", JSON.stringify({
+    currentRound: state.currentRound,
+    activeTab: state.activeTab,
+    resultSort: state.resultSort
+  }));
   updateSaveStatus();
-  scheduleRemoteSave();
 }
 
 function participantById(id) {
@@ -841,5 +804,4 @@ document.querySelector("#import-file").addEventListener("change", async e => {
 });
 
 render();
-initializeSupabase();
-startSharedPolling();
+

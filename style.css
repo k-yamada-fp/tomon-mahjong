@@ -468,3 +468,25 @@ dialog::backdrop { background:rgba(10,20,18,.52); }
   text-decoration:underline;
   text-underline-offset:3px;
 }
+
+
+/* 最終結果・閲覧専用版 */
+.edit-button,
+#round-actions,
+.app-footer,
+#refresh-shared-data,
+#save-status,
+#connection-status {
+  display: none !important;
+}
+.header-actions::after {
+  content: "最終結果確定";
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.16);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
