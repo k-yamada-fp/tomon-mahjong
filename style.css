@@ -490,3 +490,184 @@ dialog::backdrop { background:rgba(10,20,18,.52); }
   font-size: 12px;
   font-weight: 800;
 }
+
+
+/* 大会レポート */
+.report-heading {
+  margin-bottom: 18px;
+}
+.tournament-report {
+  max-width: 920px;
+  margin: 0 auto;
+  color: #253039;
+}
+.report-hero {
+  padding: 42px 46px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(128, 24, 44, .13), transparent 34%),
+    linear-gradient(145deg, #fff 0%, #faf7f7 100%);
+  border: 1px solid #eadfe2;
+  box-shadow: 0 14px 36px rgba(43, 26, 31, .07);
+}
+.report-label {
+  margin: 0 0 10px;
+  color: #8a1f35;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.report-hero h2 {
+  margin: 0;
+  color: #271c20;
+  font-size: clamp(30px, 5vw, 48px);
+  line-height: 1.25;
+  letter-spacing: .01em;
+}
+.report-lead {
+  max-width: 720px;
+  margin: 24px 0 0;
+  color: #59636c;
+  font-size: 17px;
+  line-height: 1.9;
+}
+.report-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 18px 0 28px;
+}
+.report-highlight {
+  display: flex;
+  min-height: 120px;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 22px;
+  border: 1px solid #e6e8ea;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(33, 42, 49, .05);
+}
+.report-highlight span {
+  color: #7a838b;
+  font-size: 12px;
+  font-weight: 700;
+}
+.report-highlight strong {
+  margin-top: 7px;
+  color: #313b43;
+  font-size: 17px;
+}
+.report-highlight b {
+  margin-top: 3px;
+  color: #8a1f35;
+  font-size: 27px;
+}
+.report-block {
+  margin: 18px 0;
+  padding: 30px 34px;
+  border: 1px solid #e4e7e9;
+  border-radius: 15px;
+  background: #fff;
+}
+.report-block.report-accent {
+  border-left: 5px solid #8a1f35;
+  background: #fcf9fa;
+}
+.report-block h3 {
+  margin: 0 0 16px;
+  color: #2c2528;
+  font-size: 23px;
+  line-height: 1.5;
+}
+.report-block p {
+  margin: 10px 0 0;
+  color: #4f5961;
+  font-size: 16px;
+  line-height: 2;
+}
+.report-block strong {
+  color: #8a1f35;
+  font-weight: 800;
+}
+.leader-flow {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 24px;
+}
+.leader-flow span {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 10px;
+  border-radius: 10px;
+  background: #f4f1f2;
+  color: #352b2f;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+.leader-flow small {
+  margin-bottom: 3px;
+  color: #8a1f35;
+  font-size: 10px;
+}
+.leader-flow i {
+  align-self: center;
+  color: #aeb4b9;
+  font-style: normal;
+}
+.report-closing {
+  margin: 24px 0 10px;
+  padding: 30px 34px;
+  border-radius: 15px;
+  background: #2e2529;
+}
+.report-closing p {
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+  line-height: 2;
+}
+
+@media (max-width: 700px) {
+  .report-hero {
+    padding: 28px 22px;
+    border-radius: 13px;
+  }
+  .report-lead {
+    font-size: 16px;
+    line-height: 1.85;
+  }
+  .report-highlights {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .report-highlight {
+    min-height: 0;
+    padding: 17px 20px;
+  }
+  .report-block {
+    padding: 24px 20px;
+  }
+  .report-block h3 {
+    font-size: 21px;
+  }
+  .report-block p,
+  .report-closing p {
+    font-size: 16px;
+    line-height: 1.9;
+  }
+  .leader-flow {
+    flex-direction: column;
+  }
+  .leader-flow i {
+    transform: rotate(90deg);
+  }
+  .report-closing {
+    padding: 24px 20px;
+  }
+}
